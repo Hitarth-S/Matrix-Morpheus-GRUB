@@ -34,6 +34,8 @@ cp -r "$THEME_NAME" "$THEME_DIR/" || {
     exit 1
 }
 
+# (Icons are already correctly named uefi.png and adv_arch.png)
+
 # Configure GRUB to use the new theme 
 echo "Updating GRUB configuration..."
 if grep -q '^GRUB_THEME=' "$GRUB_CFG"; then
@@ -42,6 +44,11 @@ else
     echo "" >> "$GRUB_CFG"
     echo "GRUB_THEME=\"${THEME_DIR}/${THEME_NAME}/theme.txt\"" >> "$GRUB_CFG"
 fi
+
+# Apply GRUB theme fixes
+echo "Applying theme layout fixes..."
+sed -i -E 's/^[[:space:]]*item_width = [0-9]+/    item_width = 100/' "$THEME_DIR/$THEME_NAME/theme.txt"
+sed -i -E 's/^[[:space:]]*item_padding = [0-9]+/    item_padding = 0/' "$THEME_DIR/$THEME_NAME/theme.txt"
 
 # Regenerate GRUB
 echo "Rebuilding GRUB configuration..."
