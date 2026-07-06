@@ -35,8 +35,16 @@ if os_prober_start != -1 and os_prober_end != -1:
         text = text_without_windows[:submenu_start] + os_prober_block + "\n" + text_without_windows[submenu_start:]
         print("=> GRUB menu successfully reordered and classes injected: 1. Arch 2. Windows 3. Advanced 4. UEFI")
     else:
-        # If no submenu exists, just keep text as is (with Windows at the bottom)
-        print("=> Could not find Advanced Options submenu, skipping reorder. Classes were still injected.")
+        # If no submenu exists, insert after the main Arch Linux entry (end of 10_linux block)
+        end_linux_idx = text_without_windows.find("### END /etc/grub.d/10_linux ###")
+        if end_linux_idx != -1:
+            insert_idx = end_linux_idx + len("### END /etc/grub.d/10_linux ###")
+            if insert_idx < len(text_without_windows) and text_without_windows[insert_idx] == '\n':
+                insert_idx += 1
+            text = text_without_windows[:insert_idx] + os_prober_block + "\n" + text_without_windows[insert_idx:]
+            print("=> GRUB menu successfully reordered and classes injected: 1. Arch 2. Windows 3. UEFI")
+        else:
+            print("=> Could not find Advanced Options or 10_linux block, skipping reorder. Classes injected.")
 else:
     print("=> Could not find Windows os-prober block, skipping reorder. Classes were still injected.")
 
